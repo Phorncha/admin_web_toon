@@ -11,32 +11,21 @@ Modal.setAppElement('#root');
 
 function AlertDeleteEP({ modalIsOpen, setModalIsOpen, storyId, refEp }) {
 
+
+
     const handleDelete = async () => {
         try {
-            // ค้นหาเอกสารในคอลเลคชันที่มีชื่อตรงกันกับ storyId
-            const storyQuery = query(collection(db, storyId));
-            const storySnapshot = await getDocs(storyQuery);
+            const q = query(collection(db, storyId), where("id", "==", refEp)); // แก้ "doc.id" เป็น "id"
+            const querySnapshot = await getDocs(q);
 
-            // หากพบเอกสารที่ตรงกัน
-            if (!storySnapshot.empty) {
-                // วนลูปผ่านเอกสารในคอลเลคชัน
-                storySnapshot.forEach(async(doc) => {
-                    // ตรวจสอบว่าเอกสารมี id ที่ตรงกับ refEp หรือไม่
-                    if (doc.id === refEp) {
-                        // console.log('Found matching document:');
-                        // console.log('Document ID:', doc.id);
-                        // console.log('Document data:', doc.data());
-                        // ลบเอกสารที่ตรงกับ refEp
-                        await deleteDoc(doc.ref);
-                        console.log('Document with ID:', doc.id, 'deleted successfully');
-                    }
-                });
-            } else {
-                console.log('No matching documents found in collection:', storyId);
-            }
+            const deletePromises = querySnapshot.docs.map(async (doc) => {
+                await deleteDoc(doc.ref);
+                console.log("Document successfully deleted!");
+            });
+
+            await Promise.all(deletePromises);
 
             setModalIsOpen(false);
-            window.location.reload();
         } catch (error) {
             console.error("Error deleting document: ", error);
         }
@@ -56,7 +45,7 @@ function AlertDeleteEP({ modalIsOpen, setModalIsOpen, storyId, refEp }) {
                 <button onClick={() => setModalIsOpen(false)}>No</button>
             </div>
         </Modal>
-    );
+    ); 
 }
 
 AlertDeleteEP.propTypes = {

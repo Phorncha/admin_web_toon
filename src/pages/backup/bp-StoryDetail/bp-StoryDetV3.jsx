@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, deleteDoc, setDoc, collection, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import Modal from 'react-modal';
 import { db, storage } from '../firebase';
@@ -8,54 +8,44 @@ import { format, parseISO } from 'date-fns';
 
 import AlertDeleteStory from '../components/AlertDeleteStory';
 import AddEPModal from '../components/AddEPModal';
-import AlertDeleteEP from '../components/AlertDeleteEP';
-
-
+import AlertDeleteEP from '../components/AlertDeleteEP'; // เพิ่มการนำเข้า AlertDeleteEP
 
 import './css/StoryDetail.css';
 
-
 Modal.setAppElement('#root');
 
-
 function StoryDetail() {
-
-  // ตัวแปล
-  const { id } = useParams(); //นำค่า id ออกมาจาก object  โดยตรงได้โดยไม่ต้องเข้าถึง object ทั้งหมดที่ return ออกมาจาก useParams()
+  const { id } = useParams();
   const inputRef = useRef(null);
 
   const [storyData, setStoryData] = useState({});
-  const [gridData, setGridData] = useState([]); //ตารางข้อมูล 
-  const [selectedFile, setSelectedFile] = useState(null); //ไฟล์ที่เลือก
-  const [fileId, setFileId] = useState(''); // Id
-  const [title, setTitle] = useState(''); // ชื่อเรื่อง
-  const [author, setAuthor] = useState(''); // ผู้แต่ง
-  const [day, setDay] = useState(''); // วัน 
-  const [description, setDescription] = useState(''); // คำอธิบาย
-  const [categories, setCategories] = useState([]); // หมวดหมู่
   const [RefEp, setRefEp] = useState({});
+  const [gridData, setGridData] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileId, setFileId] = useState('');
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [day, setDay] = useState('');
+  const [description, setDescription] = useState('');
+  const [categories, setCategories] = useState([]);
   const [Epdata, setEpdata] = useState({});
- 
-
+  const [deleteEpData, setDeleteEpData] = useState({ storyId: null, refEp: null });
+  
 
 
   const [addModalIsOpen, setAddModalIsOpen] = useState(false);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false); // เพิ่มสถานะสำหรับการเปิด/ปิด Modal การลบ
-  const [deleteEPModalIsOpen, setDeleteEPModalIsOpen] = useState(false);
-  const [deleteEpData, setDeleteEpData] = useState({ storyId: null, refEp: null });
+  const [deleteEPModalIsOpen, setDeleteEPModalIsOpen] = useState(false); // เพิ่มตัวแปรสำหรับควบคุมการเปิดปิด Modal สำหรับลบตอน
 
 
-
-  // ฟังก์ชัน
-  // useEffect ดึงข้อมูลเรื่องและข้อมูลตอนจาก Firestore
   useEffect(() => {
-    // ดึงข้อมูลเรื่องและข้อมูลตอนจาก Firebase Firestore ภายใต้รูปแบบของ async function 
     const fetchStoryData = async () => {
       try {
-        const docRef = doc(db, 'storys', id); //อ้างอิง: db ตัวแปรที่เก็บ reference ของ Firestore database, 'storys' คอลเลกชัน , id: เป็นรหัสหรือไอดีของเอกสาร
-        const docSnap = await getDoc(docRef); //  เรียกดูข้อมูลของเอกสารใน docRef
+        const docRef = doc(db, 'storys', id);
+        const docSnap = await getDoc(docRef);
+        // const docRefEp = doc(db,id);
+        // const docSnapEp = await getDoc(docRefEp);
 
-        //ตรวจสอบว่าเอกสารที่ดึงมาจาก docRef
         if (docSnap.exists()) {
           const data = docSnap.data();
           setStoryData(data);
@@ -65,23 +55,33 @@ function StoryDetail() {
           setAuthor(data.author || '');
           setDay(data.day || '');
           setDescription(data.description || '');
+          // setRefEp(data.title || 'EP' || data.ep);
 
         } else {
           console.log('No such document!');
         }
+        // if (docSnapEp.exists()) {
+        //   const data = docSnap.data();
+        //   setStoryDataEp(data);
 
-        // db คือตัวแปรที่เก็บ reference หรืออ้างอิงไปยัง Firebase Firestore database 
-        const epCollectionRef = collection(db, id);  //สร้าง reference หรืออ้างอิงไปยังคอลเลกชันที่มีชื่อเหมือนกับค่าของตัวแปร id 
-        const epCollectionSnapshot = await getDocs(epCollectionRef); //ดึงข้อมูลจากคอลเลกชันที่ถูกอ้างอิงโดย epCollectionRef
-        const epCollectionData = epCollectionSnapshot.docs.map(doc => doc.data()); //แปลงข้อมูลที่ถูกดึงมาจากคอลเลกชันในรูปแบบของ QuerySnapshot เป็นรูปแบบของอาร์เรย์
+        // } else {
+        //   console.log('No such document!');
+        // }
 
-        
-        setGridData(epCollectionData); // อัปเดตค่าของตัวแปร gridData กำหนดให้มีค่าเท่ากับ epCollectionData ซึ่งเป็นอาร์เรย์ของข้อมูลที่ถูกดึงมาจากคอลเลกชันใน Firebase Firestore ที่มีชื่อเหมือนกับ id
-        // ตรวจสอบว่าคอลเลกชันที่ถูกดึงมาจาก Firebase มีเอกสารอยู่หรือไม่ 
-        if (epCollectionSnapshot.exists()) {  
-          const dataArray = epCollectionSnapshot.docs.map(doc => doc.data()); //ดึงข้อมูลทั้งหมดที่อยู่ในเอกสารแต่ละรายการในคอลเลกชันที่ถูกอ้างอิงโดย epCollectionSnapshot
-          setEpdata(dataArray);
-          setRefEp(dataArray.ep);
+        // ดึงข้อมูลจาก collection storys_ep
+        const epCollectionRef = collection(db, id);
+        const epCollectionSnapshot = await getDocs(epCollectionRef);
+         const epCollectionData = epCollectionSnapshot.docs.map(doc => doc.data());
+
+        // อัปเดต state ของ gridData เพื่อแสดงข้อมูลใน grid-container
+         setGridData(epCollectionData);
+        if (epCollectionSnapshot.exists()) {
+          const data = epCollectionSnapshot.data();
+          setEpdata(data);
+          setRefEp(data.ep);
+       
+
+
         }
       } catch (error) {
         console.error('Error fetching story data:', error);
@@ -91,13 +91,54 @@ function StoryDetail() {
     fetchStoryData();
   }, [id]);
 
-  // จัดการกับการเลือกไฟล์ที่เกิดขึ้นเมื่อผู้ใช้เลือกไฟล์ใหม่จากองค์ประกอบ < input type = "file" >
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
   };
 
-  // เพิ่มหรือลบหมวดหมู่จากตัวแปร categories ของหมวดหมู่ที่เกี่ยวข้องกับเรื่องราวที่กำลังแก้ไขหรือสร้างใหม่
+  // const handleDelete = async () => {
+  //   try {
+  //     await deleteDoc(doc(db, 'storys', id));
+  //     const storageRef = ref(storage, `img_storys/${storyData.title}`);
+  //     await deleteObject(storageRef);
+
+  //     console.log('Story deleted successfully.');
+
+  //     // เปลี่ยน URL เพื่อนำผู้ใช้ไปยัง /add-story
+  //     window.location.href = '/story';
+  //   } catch (error) {
+  //     console.error('Error deleting story:', error);
+  //   }
+  // };
+
+  // const handleDelete = async () => {
+  //   try {
+  //     await deleteDoc(doc(db, 'storys', id));
+  //     const storageRef = ref(storage, `img_storys/${storyData.title}`);
+  //     await deleteObject(storageRef);
+
+  //     // Delete collection with matching id
+  //     const collections = await db.listCollections();
+  //     collections.forEach(async collection => {
+  //       if (collection.id === id) {
+  //         const snapshot = await collection.get();
+  //         snapshot.docs.forEach(async doc => {
+  //           await deleteDoc(doc.ref);
+  //         });
+  //         console.log(`Collection ${id} deleted successfully.`);
+  //       }
+  //     });
+
+  //     console.log('Story deleted successfully.');
+
+  //     // Change URL to redirect users to /story
+  //     window.location.href = '/story';
+  //   } catch (error) {
+  //     console.error('Error deleting story:', error);
+  //   }
+  // };
+
+
   const handleCategoryChange = (selectedCategory) => {
     if (categories.includes(selectedCategory)) {
       setCategories(categories.filter(category => category !== selectedCategory));
@@ -106,7 +147,6 @@ function StoryDetail() {
     }
   };
 
-  // บันทึกการเปลี่ยนแปลง
   const handleSave = async () => {
     let updatedImageUrl = storyData.imageUrl; // เริ่มต้นให้เป็น imageUrl เดิม
 
@@ -153,30 +193,26 @@ function StoryDetail() {
     }
   };
 
-  // เรียกใช้งานโมดัลที่ใช้ในการเพิ่มข้อมูลเพิ่มเติมสำหรับเรื่องราวที่กำลังแก้ไขหรือสร้างใหม่
   const handleAddClick = (id) => {
     setAddModalIsOpen(true);
     setFileId(id);
   };
 
-  // เรียกใช้งานโมดัลที่ใช้ในการยืนยันการลบเรื่องราว
   const handleDeleteClick = () => {
     setDeleteModalIsOpen(true);
     setFileId(id);
-    console.log('ต้องการลบ : ' + id);
   };
 
-  //เรียกใช้งานโมดัลที่ใช้ในการยืนยันการลบตอน (EP) 
+  
   const handleDeleteEP = (storyId, refEp) => {
-    setDeleteEpData({ storyId, refEp });
     setDeleteEPModalIsOpen(true);
-    console.log('id : ' + storyId);
-    console.log('Ep : ' + refEp);
-  }
+    // setFileId(id); // รับ storyId และ RefEp
+    // setRefEp(refEp);
+    console.log(storyId)
+    console.log(refEp)
+    setDeleteEpData({ storyId, refEp });
+  };
 
-
-
-  // ui
   return (
     <div className="container center">
       {storyData && Object.keys(storyData).length > 0 ? (
@@ -335,15 +371,13 @@ function StoryDetail() {
               <button className="delete-button" onClick={() => handleDeleteEP(storyData.id, title + " EP " + item.ep)}>Delete</button>
             </div>
           ))}
+          {/* // และเมื่อคลิกที่ปุ่ม "Delete" ของ AlertDeleteEP */}
           <AlertDeleteEP
             modalIsOpen={deleteEPModalIsOpen}
             setModalIsOpen={setDeleteEPModalIsOpen}
-            storyId={deleteEpData.storyId}
-            refEp={deleteEpData.refEp}
+            storyId={deleteEpData.storyId} // Pass storyId to modal
+            refEp={deleteEpData.refEp} // Pass refEp to modal
           />
-          
-            
-
         </div>
       </div>
       <AddEPModal
@@ -354,6 +388,6 @@ function StoryDetail() {
       />
     </div>
   );
-
 }
+
 export default StoryDetail;

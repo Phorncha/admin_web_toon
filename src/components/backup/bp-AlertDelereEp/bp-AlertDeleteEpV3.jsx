@@ -20,7 +20,7 @@ function AlertDeleteEP({ modalIsOpen, setModalIsOpen, storyId, refEp }) {
             // หากพบเอกสารที่ตรงกัน
             if (!storySnapshot.empty) {
                 // วนลูปผ่านเอกสารในคอลเลคชัน
-                storySnapshot.forEach(async(doc) => {
+                storySnapshot.forEach(async (doc) => {
                     // ตรวจสอบว่าเอกสารมี id ที่ตรงกับ refEp หรือไม่
                     if (doc.id === refEp) {
                         // console.log('Found matching document:');
