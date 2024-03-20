@@ -1,7 +1,7 @@
 /*!
- * Chart.js v4.4.2
+ * Chart.js v4.4.0
  * https://www.chartjs.org
- * (c) 2024 Chart.js Contributors
+ * (c) 2023 Chart.js Contributors
  * Released under the MIT License
  */
 'use strict';
@@ -2335,10 +2335,8 @@ function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
                 return false;
             }
         };
-        if (_isDomSupported()) {
-            window.addEventListener('test', null, options);
-            window.removeEventListener('test', null, options);
-        }
+        window.addEventListener('test', null, options);
+        window.removeEventListener('test', null, options);
     } catch (e) {
     // continue regardless of error
     }

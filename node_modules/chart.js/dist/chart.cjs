@@ -1,7 +1,7 @@
 /*!
- * Chart.js v4.4.2
+ * Chart.js v4.4.0
  * https://www.chartjs.org
- * (c) 2024 Chart.js Contributors
+ * (c) 2023 Chart.js Contributors
  * Released under the MIT License
  */
 'use strict';
@@ -3253,14 +3253,10 @@ const eventListenerOptions = helpers_segment.supportsEventListenerOptions ? {
     passive: true
 } : false;
 function addListener(node, type, listener) {
-    if (node) {
-        node.addEventListener(type, listener, eventListenerOptions);
-    }
+    node.addEventListener(type, listener, eventListenerOptions);
 }
 function removeListener(chart, type, listener) {
-    if (chart && chart.canvas) {
-        chart.canvas.removeEventListener(type, listener, eventListenerOptions);
-    }
+    chart.canvas.removeEventListener(type, listener, eventListenerOptions);
 }
 function fromNativeEvent(event, chart) {
     const type = EVENT_TYPES[event.type] || event.type;
@@ -4520,13 +4516,6 @@ class Scale extends Element {
                     case 'right':
                         left -= width;
                         break;
-                    case 'inner':
-                        if (i === ilen - 1) {
-                            left -= width;
-                        } else if (i > 0) {
-                            left -= width / 2;
-                        }
-                        break;
                 }
                 backdrop = {
                     left,
@@ -5498,7 +5487,7 @@ function getResolver(resolverCache, scopes, prefixes) {
     }
     return cached;
 }
-const hasFunction = (value)=>helpers_segment.isObject(value) && Object.getOwnPropertyNames(value).some((key)=>helpers_segment.isFunction(value[key]));
+const hasFunction = (value)=>helpers_segment.isObject(value) && Object.getOwnPropertyNames(value).reduce((acc, key)=>acc || helpers_segment.isFunction(value[key]), false);
 function needContext(proxy, names) {
     const { isScriptable , isIndexable  } = helpers_segment._descriptors(proxy);
     for (const prop of names){
@@ -5512,7 +5501,7 @@ function needContext(proxy, names) {
     return false;
 }
 
-var version = "4.4.2";
+var version = "4.4.0";
 
 const KNOWN_POSITIONS = [
     'top',
@@ -8893,23 +8882,20 @@ const positioners = {
             return false;
         }
         let i, len;
-        let xSet = new Set();
+        let x = 0;
         let y = 0;
         let count = 0;
         for(i = 0, len = items.length; i < len; ++i){
             const el = items[i].element;
             if (el && el.hasValue()) {
                 const pos = el.tooltipPosition();
-                xSet.add(pos.x);
+                x += pos.x;
                 y += pos.y;
                 ++count;
             }
         }
-        const xAverage = [
-            ...xSet
-        ].reduce((a, b)=>a + b) / xSet.size;
         return {
-            x: xAverage,
+            x: x / count,
             y: y / count
         };
     },
@@ -9725,7 +9711,7 @@ class Tooltip extends Element {
             return [];
         }
         if (!inChartArea) {
-            return lastActive.filter((i)=>this.chart.data.datasets[i.datasetIndex] && this.chart.getDatasetMeta(i.datasetIndex).controller.getParsed(i.index) !== undefined);
+            return lastActive;
         }
         const active = this.chart.getElementsAtEventForMode(e, options.mode, options, replay);
         if (options.reverse) {
@@ -10840,7 +10826,7 @@ class RadialLinearScale extends LinearScaleBase {
         }
         if (grid.display) {
             this.ticks.forEach((tick, index)=>{
-                if (index !== 0 || index === 0 && this.min < 0) {
+                if (index !== 0) {
                     offset = this.getDistanceFromCenterForValue(tick.value);
                     const context = this.getContext(index);
                     const optsAtIndex = grid.setContext(context);
@@ -10887,7 +10873,7 @@ class RadialLinearScale extends LinearScaleBase {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         this.ticks.forEach((tick, index)=>{
-            if (index === 0 && this.min >= 0 && !opts.reverse) {
+            if (index === 0 && !opts.reverse) {
                 return;
             }
             const optsAtIndex = tickOpts.setContext(this.getContext(index));
