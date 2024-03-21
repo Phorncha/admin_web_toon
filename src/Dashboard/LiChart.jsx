@@ -3,7 +3,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-// import '../Dashboard/CSS/favorite.css'
+import "../Dashboard/CSS/linechart.css";
 
 const LiChart = () => {
   const [chartData, setChartData] = useState([]);
@@ -38,14 +38,14 @@ const LiChart = () => {
 
   return (
 
-    <div className="main-container">
-      <ul className='color-card'>
-        <ul className='head'>
-          <h1>Data Line Chart</h1>
+    <div className="main-container-LC">
+      <ul className='color-card-LC'>
+        <ul className='head-LC'>
+          <h1>Cartoon categories that users like</h1>
         </ul>
         <LineChart width={800} height={400} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="timestamp" />
+          <XAxis dataKey="timestamp-LC" />
           <YAxis />
           <Tooltip />
           <Legend />
@@ -58,66 +58,10 @@ const LiChart = () => {
       </ul>
       
     </div>
-    // <div className='title'>
-    //   <h2>Data Line Chart</h2>
-      // <LineChart width={800} height={400} data={chartData}>
-      //   <CartesianGrid strokeDasharray="3 3" />
-      //   <XAxis dataKey="timestamp" />
-      //   <YAxis />
-      //   <Tooltip />
-      //   <Legend />
-      //   <Line type="monotone" dataKey="score_action" stroke="#8884d8" />
-      //   <Line type="monotone" dataKey="score_comedy" stroke="#82ca9d" />
-      //   <Line type="monotone" dataKey="score_fantasy" stroke="#ffc658" />
-      //   <Line type="monotone" dataKey="score_horror" stroke="#f94144" />
-      //   <Line type="monotone" dataKey="score_romance" stroke="#ff7f50" />
-      // </LineChart>
-    // </div>
+   
   );
 };
 
 export default LiChart;
 
 
-
-
-// function LiChart (){
-// const [cartoonsData, setCartoonsData] = useState([]);
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       const collectionRef = collection(db, 'users');
-//       const querySnapshot = await getDocs(collectionRef);
-
-//       const cartoons = [];
-//       querySnapshot.forEach(doc => {
-//         // Get specific fields from the document
-//         const { id, title, score_action, score_comedy, score_fantasy, score_horror, score_romance } = doc.data();
-//         cartoons.push({ id, title, score_action, score_comedy, score_fantasy, score_horror, score_romance });
-//       });
-
-//       setCartoonsData(cartoons);
-//     };
-
-//     fetchData();
-//   }, []);
-
-//   return (
-//     <div>
-//       <h1>Cartoons Data:</h1>
-//       <ul>
-//         {cartoonsData.map(cartoon => (
-//           <div key={cartoon.id}>
-//             Title: {cartoon.title} score_action: {cartoon.score_action}| |score_comedy: {cartoon.score_comedy}
-//             | |score_comedy: {cartoon.score_fantasy}| |score_comedy: {cartoon.score_horror}| |score_comedy: {cartoon.score_romance}
-//           </div>
-//         ))}
-//       </ul>
-//     </div>
-
-    
-
-//   );
-
-//         }
-// export default LiChart

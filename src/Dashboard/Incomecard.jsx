@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 
-import '../Dashboard/CSS/favorite.css'
+import "../Dashboard/CSS/Incomecard.css";
 
 const Income = () => {
     const [incomeData, setIncomeData] = useState([]);
@@ -49,10 +49,12 @@ const Income = () => {
     let maxCoinStory = null;
     let maxCoin = -Infinity;
 
+
     for (const storyId in incomeTotals) {
         if (incomeTotals[storyId].coin > maxCoin) {
             maxCoin = incomeTotals[storyId].coin;
-            maxCoinStory = incomeTotals[storyId];
+            // maxCoinStory = incomeTotals[storyId];
+            maxCoinStory = { ...incomeTotals[storyId], storyId: storyId };
         }
     }
 
@@ -65,7 +67,8 @@ const Income = () => {
     for (const storyId in incomeTotals) {
         if (incomeTotals[storyId].coin < minCoin) {
             minCoin = incomeTotals[storyId].coin;
-            minCoinStory = incomeTotals[storyId];
+            // minCoinStory = incomeTotals[storyId];
+            minCoinStory = { ...incomeTotals[storyId], storyId: storyId };
         }
     }
 
@@ -79,71 +82,70 @@ const Income = () => {
 
     return (
         <div className="income-container">
-            <div className="card">
 
-                <div className="row">
-                    <table className="main-container">
-                        <div className="row">
-                            <div className="color-card">
-                                <ul className="head">
-                                    <h1>INCOME DATA</h1>
-                                </ul>
-                                <table className="table">
+            <div className="row">
+                <table className="main-container-incomecard">
+                    <div className="row">
+                        <div className="color-card-incomecard">
+                            <ul className="head-incomecard">
+                                <h1>Income Data</h1>
+                            </ul>
+                            <table className="table-incomecard">
 
-                                    <thead>
-                                        <tr>
-                                            <th>Story ID</th>
-                                            <th>Title</th>
-                                            <th>Coin</th>
+                                <thead>
+                                    <tr>
+                                        <th>Story ID</th>
+                                        <th>Title</th>
+                                        <th>Coin</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {sortedIncome.map(([storyId, { coin, title }], index) => (
+                                        <tr key={index}>
+                                            <td>{storyId}</td>
+                                            <td>{title}</td>
+                                            <td>{coin}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {sortedIncome.map(([storyId, { coin, title }], index) => (
-                                            <tr key={index}>
-                                                <td>{storyId}</td>
-                                                <td>{title}</td>
-                                                <td>{coin}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {/* Card for maximum coin story */}
-                            <div className="color-card">
-                                <ul className="head">
-                                    <h1>Story with the Max coin:</h1>
-                                </ul>
-                                <table className='maxtable'>
-                                    {maxCoinStory && (
-                                        <div>
-                                            <p>Story ID: {maxCoinStory.storyId}</p>
-                                            <p>Title: {maxCoinStory.title}</p>
-                                            <p>Coin: {maxCoinStory.coin}</p>
-                                        </div>
-                                    )}
-                                </table>
-
-                            </div>
-                            {/* Card for minimum coin story */}
-                            <div className="color-card">
-                                <ul className="head">
-                                    <h1>Story with the Min coin:</h1>
-                                </ul>
-                                <table className='maxtable'>
-                                    {minCoinStory && (
-                                        <div>
-                                            <p>Story ID: {minCoinStory.storyId}</p>
-                                            <p>Title: {minCoinStory.title}</p>
-                                            <p>Coin: {minCoinStory.coin}</p>
-                                        </div>
-                                    )}
-                                </table>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    </table>
-                </div>
+                        {/* Card for maximum coin story */}
+                        <div className="color-card-max">
+                            <ul className="head">
+                                <h1> Max Coin </h1>
+                            </ul>
+                            <table className='maxtable'>
+                                {maxCoinStory && (
+                                    <div>
+                                        <p>Story ID: {maxCoinStory.storyId}</p>
+                                        <p>Title: {maxCoinStory.title}</p>
+                                        <p>Coin: {maxCoinStory.coin}</p>
+                                    </div>
+                                )}
+                            </table>
+
+                        </div>
+                        {/* Card for minimum coin story */}
+                        <div className="color-card-Min">
+                            <ul className="head">
+                                <h1> Min Coin</h1>
+                            </ul>
+                            <table className='Mintable'>
+                                {minCoinStory && (
+                                    <div>
+                                        <p>Story ID: {minCoinStory.storyId}</p>
+                                        <p>Title: {minCoinStory.title}</p>
+                                        <p>Coin: {minCoinStory.coin}</p>
+                                    </div>
+                                )}
+                            </table>
+                        </div>
+                    </div>
+                </table>
             </div>
         </div>
+
     );
 };
 

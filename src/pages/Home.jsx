@@ -11,36 +11,41 @@ import Incomecard from '../Dashboard/Incomecard';
 import './css/Home.css';
 
 function Home() {
-  
+
   const isLoggedIn = localStorage.getItem('loggedInUsername');
 
   return (
-    <div className="home-container">
+    <div className="home-container justify-content-between">
       {isLoggedIn ? (
-        <>   
-          
+        <>
+
           <div className="column">
             <h1>DashBoard</h1>
-            <div className="row">
-              <div className="favorite">
-                <Favorite/>
-              </div>
-              <div className="income-card">
-                <Incomecard />
-              </div>
-            </div>
-            <div className="row">
-              <div className="LiChart">
-                <LiChart />
-              </div>
-              <div className="IncomeChart ">
-                <IncomeChart />
+            <div className="dash">
+              <div className="row">
+                
+                  <Favorite />
+                
+                <div className="income-card">
+                  <Incomecard />
+                </div>
               </div>
             </div>
-          </div>  
-       
 
-         
+            <div className="lower">
+              <div className="row">
+                <div className="LiChart">
+                  <LiChart />
+                </div>
+                <div className="IncomeChart ">
+                  <IncomeChart />
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
         </>
       ) : (
         <>

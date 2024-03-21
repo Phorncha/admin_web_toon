@@ -5,7 +5,8 @@ import { BsFillArchiveFill, BsFillGrid3X3GapFill, BsPeopleFill, BsFillBellFill }
   from 'react-icons/bs'
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line }
   from 'recharts';
-import '../Dashboard/CSS/favorite.css'
+
+import './CSS/favorite.css'
 
 function Favorite() {
 
@@ -42,15 +43,15 @@ function Favorite() {
   return (
 
     <div className="main-container">
-      <ul className='color-card'>
-        <ul className='head'>
-          <h1>DashBoard</h1>
+      <ul className='color-card-favorite'>
+        <ul className='head-favorite'>
+          <h1>Favorite</h1>
         </ul>
         <table>
           <thead>
             <tr>
-              <th>การ์ตูนรหัสเรื่อง</th>
-              <th>จำนวนการกดถูกใจ</th>
+              <th>Story ID</th>
+              <th>Favorite</th>
             </tr>
           </thead>
           <tbody>
